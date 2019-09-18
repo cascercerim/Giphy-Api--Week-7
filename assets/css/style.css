@@ -8,7 +8,7 @@ h1{
     padding-top: 10px;
 }
  
-.tv-btn{
+.tv-btn,.btn{
     font-size: 14px;
     font-weight: 700;
 	background: aliceblue;
