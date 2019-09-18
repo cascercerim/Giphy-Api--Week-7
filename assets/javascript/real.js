@@ -1,129 +1,89 @@
-//Make an array to loop through movies 
-//add api to be able to search for any gif
-//Add buttons through jquery - working buttons
-//Add an input search bar to search other movies 
-//Make sure it works
-//Make sure giphy's pop up 3 in a row 
-//Add rating for pictures
-//Make sure pictures can be clicked to animate then be clicked to un-animate 
+$(document).ready(function(){
+    
 
+  var shows = [
+      'Hey Arnold', 
+      'Spongebob', 
+      'New Girl',
+      'Friends',
+      'Stranger Things',
+      'Full House',
+      'Dr. Pimple Popper',
+      'The Big Bang Theory',
+      'Modern Family',
+      'How I Met Your Mother',
+      'American Idol',
+      'Saturday Day Night Live',
+      'Jimmy Fallon',
+      'NCIS',
+      'Greys Anatomy',
+      'Double Dare'
+      ];
+   //api call to gif's 
+   $(document).on("click", ".tv-btn", function(){   
+    var tvShow = $(this).attr("data-name");
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + tvShow + "&api_key=0DFbYPoL3Baw4PRlHmIqhxNJaIILMRD5&limit10";
+ console.log(queryURL)
+    
+ // ajax get request
+    $.ajax({
+        url:queryURL,
+        method: "GET"
+     })
+        //  after data comes back from api
+        .then(function(response) { 
+          //  storing results in results variable
+          var results = response.data;
+          var container = $("<div class= 'results-container'>");
+            // looping over results area
+            for(var i = 0; i < results.length; i++){
+              // console.log(results);
+              var resultsDiv = $("<div class= 'container-result'>");
 
-var shows =[
-    'How-I-Met-Your-Mother',
-    'Black-mirror', 
-    'Spongebob', 
-    'New-girl',
-    'Friends',
-    'Stranger-things',
-    'Full-house',
-    'Dr.pimple-popper',
-    'The-big-bang-theory',
-    'Modern-family',
-    'American-idol',
-    'Saturday-day-night-live',
-    'Jimmy-fallon',
-    'NCIS',
-    'Greys-anatomy',
-    'Double-dare'
-    ];
-    
-    
-    function displayShowInfo() {
-    
-        var tvShow = $(this).attr("data-name");
-        var queryURL = "https://www.omdbapi.com/?t=" + tvShow + "&apikey=trilogy";
-    
-        // Creating an AJAX call for the specific movie button being clicked
-        $.ajax({
-          url: queryURL,
-          method: "GET"
-        }).then(function(response) {
-    
-          // Creating a div to hold the movie
-          var tvDiv = $("<div class='tv-show'>");
-    
-          // Storing the rating data
-          var rating = response.Rated;
-    
-          // Creating an element to have the rating displayed
-          var pOne = $("<p>").text("Rating: " + rating);
-    
-          // Displaying the rating
-          tvDiv.append(pOne);
-    
-          // Storing the release year
-          var released = response.Released;
-    
-          // Creating an element to hold the release year
-          var pTwo = $("<p>").text("Released: " + released);
-    
-          // Displaying the release year
-          tvDiv.append(pTwo);
-    
-          // Storing the plot
-          var plot = response.Plot;
-    
-          // Creating an element to hold the plot
-          var pThree = $("<p>").text("Plot: " + plot);
-    
-          // Appending the plot
-          tvDiv.append(pThree);
-    
-          // Retrieving the URL for the image
-          var imgURL = response.Poster;
-    
-          // Creating an element to hold the image
-          var image = $("<img>").attr("src", imgURL);
-    
-          // Appending the image
-          tvDiv.append(image);
-    
-          // Putting the entire movie above the previous movies
-          $("#buttons-view").prepend(tvDiv);
+              var rating = results[i].rating;
+              var p = $("<p>").text("Rating: " + rating);
+              var showImg = $("<img class='result'>");
+              showImg.attr("src",results[i].images.fixed_height.url);
+              showImg.attr("data-state","animated");
+              showImg.attr("data-animated",results[i].images.fixed_height.url);
+              showImg.attr("data-still",results[i].images.fixed_height_still.url);
+              // console.log(showImg);
+
+              resultsDiv.prepend(showImg);
+              resultsDiv.prepend(p);
+              container.prepend(resultsDiv);
+              
+         
+  }
+  $("#show-group").prepend(resultsDiv);
+    // console.log(resultsDiv);
+        
         });
-    
-      }
-    
-      // Function for displaying movie data
-      function renderButtons() {
-    
-        // Deleting the movies prior to adding new movies
-        // (this is necessary otherwise you will have repeat buttons)
-        $("#buttons-view").empty();
-    
-        // Looping through the array of movies
-        for (var i = 0; i < shows.length; i++) {
-    
-          // Then dynamicaly generating buttons for each movie in the array
-          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
-          var a = $("<button>");
-          // Adding a class of movie-btn to our button
-          a.addClass("tv-btn");
-          // Adding a data-attribute
-          a.attr("data-name", shows[i]);
-          // Providing the initial button text
-          a.text(shows[i]);
-          // Adding the button to the buttons-view div
-          $("#buttons-view").append(a);
-        }
-      }
-    
-      // This function handles events where a movie button is clicked
-      $("#add-movie").on("click", function(event) {
-        event.preventDefault();
-        // This line grabs the input from the textbox
-        var tvShow = $("#buttons-view").val().trim();
-    
-        // Adding movie from the textbox to our array
-        shows.push(tvShow);
-    
-        // Calling renderButtons which handles the processing of our movie array
-        renderButtons();
-      });
-    
-      // Adding a click event listener to all elements with a class of "movie-btn"
-      $(document).on("click", ".movie-btn", displayShowInfo);
-    
-      // Calling the renderButtons function to display the intial buttons
-      renderButtons();
-    
+     });
+       //on click event for aminate and still for images 
+       $(document).on("click", ".result",function(){
+        var state = $(this).attr("data-state");
+   
+    if(state === "animated"){
+        // put the src of the new still image 
+        $(this).attr("src", $(this).attr("data-still"))
+        // change the state to still 
+        $(this).attr("data-state", "still" );
+    }else{
+        // put the src of the new animated image 
+        $(this).attr("src", $(this).attr("data-animated"))
+        // change the state to animated 
+        $(this).attr("data-state", "animated" );
+    }
+ })
+        // could wrap in a function to call
+       //loops through array of tv-shows
+       for (var i = 0; i < shows.length; i++){
+        var button = $("<button>").text(shows[i]);// shows text on the button 
+        console.log(button);
+        button.attr("data-name", shows[i]);
+        button.addClass("tv-btn"); //class added
+
+        $("#button-view").append(button); //adds button to html 
+    }
+    });
